@@ -4,23 +4,28 @@ import { Log } from "./assets/Components/Log.component";
 import { Player } from "./assets/Components/Player.component";
 import { Turn } from "./assets/Components/types";
 
-const App: FC = () => {
-  const [activePlayer, setActivePlayer] = useState("X");
-  const [gameTurns, setGameTurns] = useState<Turn[]>([]);
+function derivedActivePlayer(gameTurns:Turn[]){
+  let currentPlayer = "X";
+  if (
+    gameTurns.length > 0 &&
+    gameTurns[gameTurns.length - 1].player == "X"
+  ) {
+    currentPlayer = "O";
+  }
+  return currentPlayer
+}
 
+const App: FC = () => {
+  // const [activePlayer, setActivePlayer] = useState("X");
+  const [gameTurns, setGameTurns] = useState<Turn[]>([]);
+  const activePlayer = derivedActivePlayer(gameTurns)
   const handleClick = (rowIndex: number, colIndex: number) => {
-    setActivePlayer((prevState) => (prevState === "X" ? "O" : "X"));
+    // setActivePlayer((prevState) => (prevState === "X" ? "O" : "X"));
     setGameTurns((prevState) => {
-      let currentPlayer = "X";
-      if (
-        prevState.length > 0 &&
-        prevState[prevState.length - 1].player == "X"
-      ) {
-        currentPlayer = "O";
-      }
+      const activePlayer = derivedActivePlayer(prevState)
       const updatedTurns: Turn[] = [
         ...prevState,
-        { square: { row: rowIndex, col: colIndex }, player: currentPlayer },
+        { square: { row: rowIndex, col: colIndex }, player: activePlayer },
       ];
       return updatedTurns;
     });
