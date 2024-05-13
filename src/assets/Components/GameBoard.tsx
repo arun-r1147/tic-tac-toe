@@ -25,7 +25,7 @@ export const GameBoard: FC<GameBoardProps> = ({ onSelect, turns }) => {
           <ol>
             {row.map((playerIcon, colIndex) => (
               <li key={colIndex}>
-                <button onClick={() => onSelect(rowIndex, colIndex)}>
+                <button onClick={() => onSelect(rowIndex, colIndex)} disabled={playerIcon !==null}>
                   {playerIcon}
                 </button>
               </li>
