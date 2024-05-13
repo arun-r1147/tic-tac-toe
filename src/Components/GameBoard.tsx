@@ -1,26 +1,16 @@
 import { FC } from "react";
-import { Turn } from "./types";
 interface GameBoardProps {
   onSelect: (rowIndex: number, colIndex: number) => void;
-  turns: Turn[];
+  board:CellValue[][];
 }
-type CellValue = string | null;
-const initialBoard: CellValue[][] = [
-  [null, null, null],
-  [null, null, null],
-  [null, null, null],
-];
-export const GameBoard: FC<GameBoardProps> = ({ onSelect, turns }) => {
-  const gameBoard = [...initialBoard];
-  for (const turn of turns) {
-    const { square, player } = turn;
-    const { row, col } = square;
-    gameBoard[row][col] = player;
-  }
+type CellValue = string | null
+
+export const GameBoard: FC<GameBoardProps> = ({ onSelect, board }) => {
+  
 
   return (
     <ol id="game-board">
-      {gameBoard.map((row, rowIndex) => (
+      {board.map((row, rowIndex) => (
         <li key={rowIndex}>
           <ol>
             {row.map((playerIcon, colIndex) => (
