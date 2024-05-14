@@ -1,34 +1,60 @@
 import { FC, useState } from "react";
-import { GameBoard } from "./assets/Components/GameBoard";
-import { Log } from "./assets/Components/Log.component";
-import { Player } from "./assets/Components/Player.component";
-import { Turn } from "./assets/Components/types";
+import { GameBoard } from "./Components/GameBoard";
+import { Log } from "./Components/Log.component";
+import { Player } from "./Components/Player.component";
+import { Turn } from "./Components/types";
+import { WINNING_COMBOS } from "./Components/Shared/Winning_combos";
+import { GameOver } from "./Components/GameOver.component";
 
-function derivedActivePlayer(gameTurns:Turn[]){
+type CellValue = string | null;
+const initialBoard: CellValue[][] = [
+  [null, null, null],
+  [null, null, null],
+  [null, null, null],
+];
+
+function derivedActivePlayer(gameTurns: Turn[]) {
   let currentPlayer = "X";
-  if (
-    gameTurns.length > 0 &&
-    gameTurns[gameTurns.length - 1].player == "X"
-  ) {
+  if (gameTurns.length > 0 && gameTurns[gameTurns.length - 1].player == "X") {
     currentPlayer = "O";
   }
-  return currentPlayer
+  return currentPlayer;
 }
 
 const App: FC = () => {
-  // const [activePlayer, setActivePlayer] = useState("X");
   const [gameTurns, setGameTurns] = useState<Turn[]>([]);
-  const activePlayer = derivedActivePlayer(gameTurns)
+  const activePlayer = derivedActivePlayer(gameTurns);
+  let winner = null;
+
+  const gameBoard = [...initialBoard.map((array) => [...array])];
+  for (const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+    gameBoard[row][col] = player;
+  }
+  for (const combo of WINNING_COMBOS) {
+    const firstCombo = gameBoard[combo[0].row][combo[0].column];
+    const secondCombo = gameBoard[combo[1].row][combo[1].column];
+    const thirdCombo = gameBoard[combo[2].row][combo[2].column];
+    if (firstCombo && firstCombo === secondCombo && firstCombo === thirdCombo) {
+      winner = firstCombo;
+    }
+  }
+  const isGameDraw = gameTurns.length === 9 && !winner;
+
   const handleClick = (rowIndex: number, colIndex: number) => {
-    // setActivePlayer((prevState) => (prevState === "X" ? "O" : "X"));
     setGameTurns((prevState) => {
-      const activePlayer = derivedActivePlayer(prevState)
+      const activePlayer = derivedActivePlayer(prevState);
       const updatedTurns: Turn[] = [
         ...prevState,
         { square: { row: rowIndex, col: colIndex }, player: activePlayer },
       ];
       return updatedTurns;
     });
+  };
+
+  const handleRestart = () => {
+    setGameTurns([]);
   };
 
   return (
@@ -46,7 +72,10 @@ const App: FC = () => {
             symbol="0"
           />
         </ol>
-        <GameBoard turns={gameTurns} onSelect={handleClick} />
+        {(winner || isGameDraw) && (
+          <GameOver onReset={handleRestart} winner={winner} />
+        )}
+        <GameBoard board={gameBoard} onSelect={handleClick} />
       </div>
       <Log turns={gameTurns} />
     </main>
