@@ -26,7 +26,7 @@ const App: FC = () => {
   const activePlayer = derivedActivePlayer(gameTurns);
   let winner = null;
 
-  const gameBoard = [...initialBoard];
+  const gameBoard = [...initialBoard.map((array) => [...array])];
   for (const turn of gameTurns) {
     const { square, player } = turn;
     const { row, col } = square;
@@ -53,6 +53,10 @@ const App: FC = () => {
     });
   };
 
+  const handleRestart = () => {
+    setGameTurns([]);
+  };
+
   return (
     <main>
       <div id="game-container">
@@ -68,7 +72,9 @@ const App: FC = () => {
             symbol="0"
           />
         </ol>
-        {(winner || isGameDraw) && <GameOver winner={winner} />}
+        {(winner || isGameDraw) && (
+          <GameOver onReset={handleRestart} winner={winner} />
+        )}
         <GameBoard board={gameBoard} onSelect={handleClick} />
       </div>
       <Log turns={gameTurns} />
