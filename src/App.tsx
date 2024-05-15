@@ -13,6 +13,39 @@ const initialBoard: CellValue[][] = [
   [null, null, null],
 ];
 
+const PLAYERS = {
+  X: "Player 1",
+  O: "Player 2",
+};
+
+const derivedGameBoard = (gameTurns: Turn[]) => {
+  const gameBoard = [...initialBoard.map((array) => [...array])];
+  for (const turn of gameTurns) {
+    const { square, player } = turn;
+    const { row, col } = square;
+    gameBoard[row][col] = player;
+  }
+  return gameBoard;
+};
+
+const derivedWinner = (
+  gameBoard: CellValue[][],
+  players: {
+    [key: string]: string;
+  }
+) => {
+  let winner = null;
+  for (const combo of WINNING_COMBOS) {
+    const firstCombo = gameBoard[combo[0].row][combo[0].column];
+    const secondCombo = gameBoard[combo[1].row][combo[1].column];
+    const thirdCombo = gameBoard[combo[2].row][combo[2].column];
+    if (firstCombo && firstCombo === secondCombo && firstCombo === thirdCombo) {
+      winner = players[firstCombo];
+    }
+  }
+  return winner;
+};
+
 function derivedActivePlayer(gameTurns: Turn[]) {
   let currentPlayer = "X";
   if (gameTurns.length > 0 && gameTurns[gameTurns.length - 1].player == "X") {
@@ -25,27 +58,12 @@ const App: FC = () => {
   const [gameTurns, setGameTurns] = useState<Turn[]>([]);
   const [players, setPlayers] = useState<{
     [key: string]: string;
-  }>({
-    X: "Player 1",
-    O: "Player 2",
-  });
+  }>(PLAYERS);
   const activePlayer = derivedActivePlayer(gameTurns);
-  let winner = null;
 
-  const gameBoard = [...initialBoard.map((array) => [...array])];
-  for (const turn of gameTurns) {
-    const { square, player } = turn;
-    const { row, col } = square;
-    gameBoard[row][col] = player;
-  }
-  for (const combo of WINNING_COMBOS) {
-    const firstCombo = gameBoard[combo[0].row][combo[0].column];
-    const secondCombo = gameBoard[combo[1].row][combo[1].column];
-    const thirdCombo = gameBoard[combo[2].row][combo[2].column];
-    if (firstCombo && firstCombo === secondCombo && firstCombo === thirdCombo) {
-      winner = players[firstCombo];
-    }
-  }
+  const gameBoard = derivedGameBoard(gameTurns);
+  const winner = derivedWinner(gameBoard, players);
+
   const isGameDraw = gameTurns.length === 9 && !winner;
 
   const handleClick = (rowIndex: number, colIndex: number) => {
@@ -75,7 +93,7 @@ const App: FC = () => {
         <ol id="players" className="highlight-player">
           <Player
             isActive={activePlayer === "X"}
-            initialName="Player 1"
+            initialName={PLAYERS.X}
             symbol="X"
             onSavePlayer={(symbol, newName) =>
               handleSavePlayerName(symbol, newName)
@@ -83,7 +101,7 @@ const App: FC = () => {
           />
           <Player
             isActive={activePlayer === "O"}
-            initialName="Player 2"
+            initialName={PLAYERS.O}
             symbol="0"
             onSavePlayer={(symbol, newName) =>
               handleSavePlayerName(symbol, newName)
