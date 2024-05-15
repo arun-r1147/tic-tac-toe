@@ -3,10 +3,25 @@ interface PlayerProps {
   initialName: string;
   symbol: string;
   isActive: boolean;
+  onSavePlayer: (symbol: string, newName: string) => void;
 }
-export const Player: FC<PlayerProps> = ({ initialName, symbol, isActive }) => {
+export const Player: FC<PlayerProps> = ({
+  initialName,
+  symbol,
+  isActive,
+  onSavePlayer,
+}) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [name, setName] = useState(initialName);
+
+  const handleSave = () => {
+    setIsEditMode((prevState) => {
+      return !prevState;
+    });
+    if (isEditMode) {
+      onSavePlayer(symbol, name);
+    }
+  };
   return (
     <>
       <li className={isActive ? "active" : undefined}>
@@ -25,13 +40,7 @@ export const Player: FC<PlayerProps> = ({ initialName, symbol, isActive }) => {
           )}
           <span className="player-symbol">{symbol}</span>
         </span>
-        <button
-          onClick={() => {
-            setIsEditMode((prevState) => {
-              return !prevState;
-            });
-          }}
-        >
+        <button onClick={() => handleSave()}>
           {!isEditMode ? "Edit" : "Save"}
         </button>
       </li>
