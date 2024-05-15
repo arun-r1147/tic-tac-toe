@@ -23,6 +23,12 @@ function derivedActivePlayer(gameTurns: Turn[]) {
 
 const App: FC = () => {
   const [gameTurns, setGameTurns] = useState<Turn[]>([]);
+  const [players, setPlayers] = useState<{
+    [key: string]: string;
+  }>({
+    X: "Player 1",
+    O: "Player 2",
+  });
   const activePlayer = derivedActivePlayer(gameTurns);
   let winner = null;
 
@@ -37,7 +43,7 @@ const App: FC = () => {
     const secondCombo = gameBoard[combo[1].row][combo[1].column];
     const thirdCombo = gameBoard[combo[2].row][combo[2].column];
     if (firstCombo && firstCombo === secondCombo && firstCombo === thirdCombo) {
-      winner = firstCombo;
+      winner = players[firstCombo];
     }
   }
   const isGameDraw = gameTurns.length === 9 && !winner;
@@ -57,6 +63,12 @@ const App: FC = () => {
     setGameTurns([]);
   };
 
+  const handleSavePlayerName = (symbol: string, newName: string) => {
+    setPlayers((prevValue) => {
+      return { ...prevValue, [symbol]: newName };
+    });
+  };
+
   return (
     <main>
       <div id="game-container">
@@ -65,11 +77,17 @@ const App: FC = () => {
             isActive={activePlayer === "X"}
             initialName="Player 1"
             symbol="X"
+            onSavePlayer={(symbol, newName) =>
+              handleSavePlayerName(symbol, newName)
+            }
           />
           <Player
             isActive={activePlayer === "O"}
             initialName="Player 2"
             symbol="0"
+            onSavePlayer={(symbol, newName) =>
+              handleSavePlayerName(symbol, newName)
+            }
           />
         </ol>
         {(winner || isGameDraw) && (
